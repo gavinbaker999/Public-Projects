@@ -1,0 +1,21 @@
+Dynamic 365 URL
+orgdcfcc54b.crm11.dynamics.com
+
+Azure Account
+gavinbaker@endhousesoftware99.on.microsoft.com
+
+Azure App Registration
+Display name
+Infinity Interview Plus
+Application (client) ID
+dd7b008a-23a2-4c58-93b4-35059d00b946
+Object ID
+4398d6bf-a1d5-4555-9828-1067e4af4b76
+Directory (tenant) ID
+a4d251c7-aa47-454c-8c6a-734998a84426
+Client Secret
+Value
+lJ1XCDv_6ECAM2UU7QkEyXNIx~yp_6~0X1
+Secret ID
+4d5a9b24-337c-4cdf-b970-36e276a638e1
+

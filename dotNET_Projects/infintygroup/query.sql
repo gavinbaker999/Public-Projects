@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS InfinityData
+GO
+CREATE TABLE InfinityData (
+	recID BIGINT IDENTITY,
+	FirstName VARCHAR(100),
+	LastName VARCHAR(100),
+	EmailAddress VARCHAR(100),
+	ContactId VARCHAR(100)
+)
+GO
