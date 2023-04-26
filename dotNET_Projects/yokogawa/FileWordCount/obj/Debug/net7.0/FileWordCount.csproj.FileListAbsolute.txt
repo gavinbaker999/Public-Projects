@@ -1,0 +1,15 @@
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\obj\Debug\net7.0\FileWordCount.csproj.AssemblyReference.cache
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\obj\Debug\net7.0\FileWordCount.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\obj\Debug\net7.0\FileWordCount.AssemblyInfoInputs.cache
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\obj\Debug\net7.0\FileWordCount.AssemblyInfo.cs
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\obj\Debug\net7.0\FileWordCount.csproj.CoreCompileInputs.cache
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\bin\Debug\net7.0\FileWordCount.exe
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\bin\Debug\net7.0\FileWordCount.deps.json
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\bin\Debug\net7.0\FileWordCount.runtimeconfig.json
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\bin\Debug\net7.0\FileWordCount.dll
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\bin\Debug\net7.0\FileWordCount.pdb
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\obj\Debug\net7.0\FileWordCount.dll
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\obj\Debug\net7.0\refint\FileWordCount.dll
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\obj\Debug\net7.0\FileWordCount.pdb
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\obj\Debug\net7.0\FileWordCount.genruntimeconfig.cache
+C:\Users\brynb\development\publicprojects\dotNET_Projects\yokogawa\FileWordCount\obj\Debug\net7.0\ref\FileWordCount.dll
