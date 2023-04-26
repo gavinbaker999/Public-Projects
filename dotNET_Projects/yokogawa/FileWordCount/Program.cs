@@ -35,22 +35,10 @@ namespace FileWordCount {
             string[] files = Directory.GetFiles(args[0],"*.txt",directorySearchOption);
 
             foreach (string file in files) {
-                // create a fileinfoBlock to contain the word stats for a file
-                fileInfoBlock fib = new fileInfoBlock(file);
-
-                // use a smart pointer to read the file line by line
-                using (StreamReader sr = new StreamReader(file)) {
-                    string line;
-                    while ((line = sr.ReadLine()) != null) {
-                        string[] words = line.Split(' ',StringSplitOptions.RemoveEmptyEntries);
-                        foreach (string word in words) {
-                            fib.addWord(word);
-                        }
-                    }
-                }
 
                 // add the fileInfoBlock to the master list
-                fileInfoBlocks.Add(fib);
+                fileInfoBlocks.Add(processFile(file));
+
             }
 
             // display the word stats for each fileInfoBlock
@@ -60,6 +48,24 @@ namespace FileWordCount {
 
             // release all allocated storage
             fileInfoBlocks.Clear();
+        }
+
+        public static fileInfoBlock processFile(string fileName) {
+            // create a fileinfoBlock to contain the word stats for file
+            fileInfoBlock fib = new fileInfoBlock(fileName);
+
+            // use a smart pointer to read the file line by line
+            using (StreamReader sr = new StreamReader(fileName)) {
+                string line;
+                while ((line = sr.ReadLine()) != null) {
+                    string[] words = line.Split(' ',StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string word in words) {
+                        fib.addWord(word);
+                    }
+                }
+            }
+
+            return fib; 
         }
     }
 
