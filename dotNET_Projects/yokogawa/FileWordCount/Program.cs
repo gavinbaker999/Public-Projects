@@ -4,24 +4,30 @@ using System.Collections;
 
 namespace FileWordCount {
     class Program {
-        static void Main(string[] args) {
+        // create a master list of fileInfoBlocks that hold the word stats for each file
+        static List<fileInfoBlock> fileInfoBlocks = new List<fileInfoBlock>();
+        static bool ignoreCase = true;
 
+        static void Main(string[] args) {
             // set default values
             SearchOption directorySearchOption = SearchOption.TopDirectoryOnly;
 
             // process the command line arguments
-            if (args.Length == 1 || args.Length == 2) {
-                if (args[1] == "-s") {
+            int validCmdLineArgs = 1; // assuming the first argument is the directory name
+                if (args[1] == "-r") {
                     directorySearchOption = SearchOption.AllDirectories;
+                    validCmdLineArgs++;
                 }
-            } else {
-                Console.WriteLine("FileWordCount <directory> [-s]");
-                return;
-            }
-        
-            // create a master list of fileInfoBlocks that hold the word stats for each file
-            List<fileInfoBlock> fileInfoBlocks = new List<fileInfoBlock>();
+                if (args[2] == "-c") {
+                    ignoreCase = false;
+                    validCmdLineArgs++;
+                }
 
+                if (args.Length != validCmdLineArgs) {
+                    Console.WriteLine("FileWordCount <directory> [-r] [-c]");
+                    return;
+                }
+        
             // check specified directory exists
             if (!Directory.Exists(args[0])) {
                 Console.WriteLine("Directory does not exist");
@@ -52,7 +58,7 @@ namespace FileWordCount {
 
         public static fileInfoBlock processFile(string fileName) {
             // create a fileinfoBlock to contain the word stats for file
-            fileInfoBlock fib = new fileInfoBlock(fileName);
+            fileInfoBlock fib = new fileInfoBlock(fileName,ignoreCase);
 
             // use a smart pointer to read the file line by line
             using (StreamReader sr = new StreamReader(fileName)) {
@@ -70,24 +76,33 @@ namespace FileWordCount {
     }
 
     public class fileInfoBlock {
+        private bool ignoreCase = true;
         private string pathFileName = "";
         private Dictionary <string,int> wordStats = new Dictionary<string,int>();
 
-        public fileInfoBlock (string pathFileName) {
+        public fileInfoBlock (string pathFileName,bool ignoreCase) {
             this.pathFileName = pathFileName;
+            this.ignoreCase = ignoreCase;
         }
         ~fileInfoBlock() {
             wordStats.Clear();
         }
         // add a word to the wordStats dictionary if it does not exist or increase the count if it does
         public void addWord(string word) {
-            word = word.Trim().ToLower();
+            // remove any leading and trailing spaces
+            word = word.Trim();
+
+            if (ignoreCase) {
+                word = word.ToLower(); // convert to lower case so that The and the are treated as the same word
+            }
+
             if (wordStats.ContainsKey(word)) {
                 wordStats[word]++;
             } else {
                 wordStats.Add(word,1);
             }
         }
+
         // display the word stats for this fileInfoBlock
         public void printStats() {
 
