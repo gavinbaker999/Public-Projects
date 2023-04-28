@@ -80,6 +80,7 @@ namespace FileWordCount {
     public class fileInfoBlock {
         private bool ignoreCase = true;
         private string pathFileName = "";
+        private int totalWordCount = 0;
         private Dictionary <string,int> wordStats = new Dictionary<string,int>();
 
         public fileInfoBlock (string pathFileName,bool ignoreCase) {
@@ -88,6 +89,9 @@ namespace FileWordCount {
         }
         ~fileInfoBlock() {
             wordStats.Clear();
+        }
+        int getTotalWordCount() {
+            return totalWordCount;
         }
         // add a word to the wordStats dictionary if it does not exist or increase the count if it does
         public void addWord(string word) {
@@ -103,6 +107,8 @@ namespace FileWordCount {
             } else {
                 wordStats.Add(word,1);
             }
+
+            totalWordCount++;
         }
 
         // display the word stats for this fileInfoBlock
@@ -113,7 +119,7 @@ namespace FileWordCount {
            // and the shortest word with the lowest occurrence count will be displayed last
             var orderedWordStats = wordStats.OrderByDescending(x => x.Value);
 
-            Console.WriteLine("File: {0}", pathFileName);
+            Console.WriteLine("File: {0} contains {1}", pathFileName, totalWordCount);
             foreach (KeyValuePair<string,int> kvp in orderedWordStats) {
                 Console.WriteLine("{0} {1}", kvp.Key, kvp.Value);
             }
