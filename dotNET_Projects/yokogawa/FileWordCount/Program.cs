@@ -14,19 +14,21 @@ namespace FileWordCount {
 
             // process the command line arguments
             int validCmdLineArgs = 1; // assuming the first argument is the directory name
-                if (args[1] == "-r") {
+            foreach (string arg in args) {
+                if (arg == "-r") {
                     directorySearchOption = SearchOption.AllDirectories;
                     validCmdLineArgs++;
                 }
-                if (args[2] == "-c") {
+                if (arg == "-c") {
                     ignoreCase = false;
                     validCmdLineArgs++;
                 }
+            }
 
-                if (args.Length != validCmdLineArgs) {
-                    Console.WriteLine("FileWordCount <directory> [-r] [-c]");
-                    return;
-                }
+            if (args.Length != validCmdLineArgs) {
+                Console.WriteLine("FileWordCount <directory> [-r] [-c]");
+                return;
+            }
         
             // check specified directory exists
             if (!Directory.Exists(args[0])) {
