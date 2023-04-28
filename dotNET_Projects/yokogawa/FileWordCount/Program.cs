@@ -119,7 +119,7 @@ namespace FileWordCount {
            // and the shortest word with the lowest occurrence count will be displayed last
             var orderedWordStats = wordStats.OrderByDescending(x => x.Value);
 
-            Console.WriteLine("File: {0} contains {1}", pathFileName, totalWordCount);
+            Console.WriteLine("File: {0} contains {1} words", pathFileName, totalWordCount);
             foreach (KeyValuePair<string,int> kvp in orderedWordStats) {
                 Console.WriteLine("{0} {1}", kvp.Key, kvp.Value);
             }
