@@ -49,10 +49,16 @@ namespace FileWordCount {
 
             }
 
+            // count of words across all files
+            int totalWordCountInAllFiles = 0;
+
             // display the word stats for each fileInfoBlock
             foreach (fileInfoBlock fib in fileInfoBlocks) {
                 fib.printStats();
+                totalWordCountInAllFiles = totalWordCountInAllFiles + fib.getTotalWordCount();
             }
+
+            Console.WriteLine("Total words in all files is {0} words", totalWordCountInAllFiles);
 
             // release all allocated storage
             fileInfoBlocks.Clear();
@@ -90,7 +96,7 @@ namespace FileWordCount {
         ~fileInfoBlock() {
             wordStats.Clear();
         }
-        int getTotalWordCount() {
+        public int getTotalWordCount() {
             return totalWordCount;
         }
         // add a word to the wordStats dictionary if it does not exist or increase the count if it does
