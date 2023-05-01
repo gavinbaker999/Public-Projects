@@ -4,12 +4,14 @@
 #include <list>
 #include <set>
 #include <filesystem>
+#include <algorithm>
+#include <fstream>
 
 namespace fs = std::filesystem;
 using namespace std;
 
 // create a master list of fileInfoBlocks that hold the word stats for each file
-list<fileInfoBlock> fileInfoBlocks;
+list<fileInfoBlock*> fileInfoBlocks;
 bool ignoreCase = true;
 
 // The comparison function for sorting the set by increasing order of its pair's
@@ -28,37 +30,55 @@ struct comp
 };
 
 class fileInfoBlock {
-    private bool ignoreCase = true;
-    private string pathFileName = "";
-    private int totalWordCount = 0;
-    private map<string,int> wordStats;
+    private:
+        bool ignoreCase = true;
+        string pathFileName = "";
+        int totalWordCount = 0;
+        int minWordSize = 0;
+        int maxWordSize = 0;
+        map<string,int> wordStats;
 
-    fileInfoBlock (string pathFileNameParam,bool ignoreCaseParam) {
-        pathFileName = pathFileNameParam;
-        ignoreCase = ignoreCaseParam;
-    }
-    ~fileInfoBlock() {
-        wordStats.Clear();
-    }
-    public int getTotalWordCount() {
+    public:
+        fileInfoBlock (string pathFileNameParam,bool ignoreCaseParam) {
+            pathFileName = pathFileNameParam;
+            ignoreCase = ignoreCaseParam;
+        }
+
+        ~fileInfoBlock() {
+            wordStats.clear();
+        }
+
+    int getTotalWordCount() {
         return totalWordCount;
     }
     // add a word to the wordStats dictionary if it does not exist or increase the count if it does
-    public void addWord(string word) {
-        // remove any leading and trailing spaces
-        word = word.Trim();
+    void addWord(string word) {
+        // Removing whitespaces from string s.
+        word.erase(remove_if(word.begin(), word.end(),
+            [](char c) { // a lambda function
+                return (c == ' ' || c == '\n' || c == '\r' ||
+                    c == '\t' || c == '\v' || c == '\f');
+            }),
+        word.end());
 
         if (ignoreCase) {
-            word = word.ToLower(); // convert to lower case so that The and the are treated as the same word
+              transform(word.begin(), word.end(), word.begin(), ::tolower); // convert to lower case so that The and the are treated as the same word
         }
 
-        wordStats[word] = wordStats.ContainsKey(word) ? wordStats[word] + 1 : 1;
+        // if the word does not exist in the map then add it with a count of 1
+        if (wordStats.count(word) == 0) {
+             wordStats.insert({ word, 1 });
+        } else {
+            // if the word exists in the map then increment the count
+            wordStats[word]++;
+
+        }
 
         totalWordCount++;
     }
 
     // display the word stats for this fileInfoBlock
-    public void printStats() {
+    void printStats() {
 
         // The shortest word with the lowest occurrence count will be displayed first
         // this means that the longest word with the highest count will be displayed last
@@ -68,11 +88,11 @@ class fileInfoBlock {
     
         cout << "File: " << pathFileName << " contains " << totalWordCount << " words" << endl;
 
-        for(auto element : orderedWordStats) {
-            cout << element.Key << " " << element.Value << endl;
-        }
+        for (auto element = orderedWordStats.begin(); element != orderedWordStats.end(); ++element) {
+            cout << element->first << ' ' << element->second << '\n';
+        } 
     }
-}
+};
 
 int main(int argc, char* argv[]) {
             // set default values
@@ -80,39 +100,40 @@ int main(int argc, char* argv[]) {
 
             // process the command line arguments
             int validCmdLineArgs = 2; // assuming the first argument the program name and the second argument is the directory name
-            for(auto arg in args) {
-                if (arg == "-r") {
+            
+            for (int i=0; i < argc; i++) {
+                if (argv[1] == "-r") {
                     recursiveDirectorySearch = true;
                     validCmdLineArgs++;
                 }
-                if (arg == "-c") {
+                if (argv[i] == "-c") {
                     ignoreCase = false;
                     validCmdLineArgs++;
                 }
             }
 
-            if (args.Length != validCmdLineArgs) {
+            if (argc != validCmdLineArgs) {
                 cout << "FileWordCount <directory> [-r] [-c]" << endl;
                 return 0;
             }
         
             // check specified directory exists
-            if (!fs::is_directory(args[1])) {
-                count << "Directory does not exist" << endl;
+            if (!fs::is_directory(argv[1])) {
+                cout << "Directory does not exist" << endl;
                 return 0;
             }
 
             // display processing status message
-            cout << "Processing files in " << args[1] << endl;
+            cout << "Processing files in " << argv[1] << endl;
 
             // get all the files in the current directory(s) and process
             if (recursiveDirectorySearch) {
-                for (const auto & file: directory_iterator(args[1])) {
-                    fileInfoBlocks.Add(processFile(file.path()));
+                for (const auto & file : fs::directory_iterator(argv[1])) {
+                    fileInfoBlocks.push_front(processFile(file.path().string()));
                 }
             } else {
-                for (const auto & file: recursive_directory_iterator(args[1])) {
-                    fileInfoBlocks.Add(processFile(file.path()));
+                for (const auto & file : fs::recursive_directory_iterator(argv[1])) {
+                    fileInfoBlocks.push_front(processFile(file.path().string()));
                 }
             }
 
@@ -120,23 +141,23 @@ int main(int argc, char* argv[]) {
             int totalWordCountInAllFiles = 0;
 
             // display the word stats for each fileInfoBlock
-            for(auto fib in fileInfoBlocks) {
-                fib.printStats();
-                totalWordCountInAllFiles = totalWordCountInAllFiles + fib.getTotalWordCount();
+            for(auto fib : fileInfoBlocks) {
+                fib->printStats();
+                totalWordCountInAllFiles = totalWordCountInAllFiles + fib->getTotalWordCount();
             }
 
             cout << "Total words in all files is " << totalWordCountInAllFiles << " words." << endl;
 
             // release all allocated storage
-            fileInfoBlocks.Clear();
+            fileInfoBlocks.clear();
         }
 
-        public fileInfoBlock processFile(string fileName) {
+        fileInfoBlock* processFile(string fileName) {
             // create a fileinfoBlock to contain the word stats for file
-            fileInfoBlock fib = new fileInfoBlock(fileName,ignoreCase);
+            fileInfoBlock* fib = new fileInfoBlock(fileName,ignoreCase);
 
             // Open the stream to 'lock' the file.
-            std::ifstream f(fileName, std::ios::in | std::ios::binary);
+            ifstream f(fileName, ios::in | ios::binary);
 
             // Obtain the size of the file.
             const auto sz = fs::file_size(fileName);
@@ -154,7 +175,7 @@ int main(int argc, char* argv[]) {
             stringstream ss(result);  
             string word;
             while (ss >> word) { // Extract word from the stream.
-                fib.addWord(word);
+                fib->addWord(word);
             }
 
             return fib; 
