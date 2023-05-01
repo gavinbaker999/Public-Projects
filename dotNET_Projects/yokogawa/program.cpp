@@ -34,8 +34,8 @@ class fileInfoBlock {
         bool ignoreCase = true;
         string pathFileName = "";
         int totalWordCount = 0;
-        int minWordSize = 0;
-        int maxWordSize = 0;
+        string shortestWord = "";
+        string longestWord = "";
         map<string,int> wordStats;
 
     public:
@@ -65,6 +65,24 @@ class fileInfoBlock {
               transform(word.begin(), word.end(), word.begin(), ::tolower); // convert to lower case so that The and the are treated as the same word
         }
 
+        // check for the shortest word
+        if (shortestWord == "") {
+            shortestWord = word;
+        } else {
+            if (word.length() < shortestWord.length()) {
+                shortestWord = word;
+            }
+        }
+
+        // check for the longest word
+        if (longestWord == "") {
+            longestWord = word;
+        } else {
+            if (word.length() > longestWord.length()) {
+                longestWord = word;
+            }
+        }
+
         // if the word does not exist in the map then add it with a count of 1
         if (wordStats.count(word) == 0) {
              wordStats.insert({ word, 1 });
@@ -87,6 +105,8 @@ class fileInfoBlock {
         set<pair<string, int>, comp> orderedWordStats(wordStats.begin(), wordStats.end());
     
         cout << "File: " << pathFileName << " contains " << totalWordCount << " words" << endl;
+
+        cout << "Shortest Word:" << shortestWord << " and longest word:" << longestWord << endl;
 
         for (auto element = orderedWordStats.begin(); element != orderedWordStats.end(); ++element) {
             cout << element->first << ' ' << element->second << '\n';
