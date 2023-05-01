@@ -70,7 +70,7 @@ namespace FileWordCount {
 
             // use a smart pointer to read the file line by line
             using (StreamReader sr = new StreamReader(fileName)) {
-                string line;
+                string? line;
                 while ((line = sr.ReadLine()) != null) {
                     string[] words = line.Split(' ',StringSplitOptions.RemoveEmptyEntries);
                     foreach (string word in words) {
