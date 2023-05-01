@@ -97,22 +97,23 @@ int main(int argc, char* argv[]) {
             }
         
             // check specified directory exists
-            if (!fs::is_directory(args[0])) {
+            if (!fs::is_directory(args[1])) {
                 count << "Directory does not exist" << endl;
                 return 0;
             }
 
             // display processing status message
-            cout << "Processing files in " << args[0] << endl;
+            cout << "Processing files in " << args[1] << endl;
 
-            // get all the files in the current directory
-            string[] files = Directory.GetFiles(args[0],"*.txt",directorySearchOption);
-
-            for(auto file in files) {
-
-                // add the fileInfoBlock to the master list
-                fileInfoBlocks.Add(processFile(file));
-
+            // get all the files in the current directory(s) and process
+            if (recursiveDirectorySearch) {
+                for (const auto & file: directory_iterator(args[1])) {
+                    fileInfoBlocks.Add(processFile(file.path()));
+                }
+            } else {
+                for (const auto & file: recursive_directory_iterator(args[1])) {
+                    fileInfoBlocks.Add(processFile(file.path()));
+                }
             }
 
             // count of words across all files
@@ -150,10 +151,9 @@ int main(int argc, char* argv[]) {
             f.close();
 
             // split the file contents into words
-            string[] words = result.Split(' ',StringSplitOptions.RemoveEmptyEntries);
-
-            // add each word to the fileInfoBlock
-            for(auto word in words) {
+            stringstream ss(result);  
+            string word;
+            while (ss >> word) { // Extract word from the stream.
                 fib.addWord(word);
             }
 
