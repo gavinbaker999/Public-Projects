@@ -169,6 +169,9 @@ int main(int argc, char* argv[]) {
             cout << "Total words in all files is " << totalWordCountInAllFiles << " words." << endl;
 
             // release all allocated storage
+            for(auto fib : fileInfoBlocks) {
+                 delete fib;
+            }
             fileInfoBlocks.clear();
         }
 
