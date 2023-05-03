@@ -28,12 +28,15 @@ struct comp
 
 // the stream base class with derived classes for string, keyboard, zip and file streams
 // each derived class must give an implementation for the fillStream() and getStream() functions
+// the fillStream() function is used to fill the stream with data
+// the getStream() function is used to get the data from the stream
 class baseStream {
     public:
         virtual void fillStream() = 0;
         virtual string getStream() = 0;
 };
 
+// example of a stream coming from a string
 class stringStream : public baseStream {
     private:
         string str = "";
@@ -52,6 +55,7 @@ class stringStream : public baseStream {
         }
 };
 
+// example of a stream coming from the keyboard
 class keyboardStream : public baseStream {
     private:
         string str = "";
@@ -67,39 +71,7 @@ class keyboardStream : public baseStream {
         }
 };
 
-class zipStream : public baseStream {
-    private:
-        string zipFileName = "";
-        string zipFileBuffer = "";
-
-    public:
-        zipStream(string zipFileNameParam) {
-            zipFileName = zipFileNameParam;
-        }
-
-        ~zipStream() {
-            zipFileBuffer.clear();
-        }
-
-        void fillStream() {
-            // Open the stream to 'lock' the file.
-            ifstream fs(zipFileName, ios::in | ios::binary);
-
-            // Obtain the size of the file.
-            const auto sz = fs::file_size(zipFileName);
-
-            // Create a buffer.
-            zipFileBuffer.resize(sz);
-
-            // Read the whole file into the buffer.
-            fs.read(zipFileBuffer.data(), sz);
-        }
-
-        string getStream() {
-            return zipFileBuffer;
-        }
-};
-
+// example of stream coming from a file
 class fileStream : public baseStream {
     private:
         string fileName = "";
@@ -222,10 +194,11 @@ class fileInfoBlock {
 int main(int argc, char* argv[]) {
             // set default values
             bool recursiveDirectorySearch = false;
+            bool ignoreCase = true;
+            string word = "";
 
             // create a master list of fileInfoBlocks that hold the word stats for each file
             list<fileInfoBlock*> fileInfoBlocks;
-            bool ignoreCase = true;
 
             // process the command line arguments
             int validCmdLineArgs = 2; // assuming the first argument the program name and the second argument is the directory name
@@ -261,6 +234,7 @@ int main(int argc, char* argv[]) {
 
                     string filename = file.path().string();
 
+                    // use a smart pointer, memory will automatically be freed when the fileInfoBlock is removed from the list
                     unique_ptr<baseStream> s(new fileStream(filename));
                     s->fillStream();
 
@@ -268,7 +242,6 @@ int main(int argc, char* argv[]) {
 
                     // split the stream contents into words
                     stringstream ss(s->getStream());  
-                    string word;
                     while (ss >> word) {fib->addWord(word);}
 
                     fileInfoBlocks.push_front(fib);
@@ -278,6 +251,7 @@ int main(int argc, char* argv[]) {
 
                     string filename = file.path().string();
 
+                    // use a smart pointer, memory will automatically be freed when the fileInfoBlock is removed from the list
                     unique_ptr<baseStream> s(new fileStream(filename));
                     s->fillStream();
 
@@ -285,7 +259,6 @@ int main(int argc, char* argv[]) {
 
                     // split the stream contents into words
                     stringstream ss(s->getStream());  
-                    string word;
                     while (ss >> word) {fib->addWord(word);}
 
                     fileInfoBlocks.push_front(fib);
