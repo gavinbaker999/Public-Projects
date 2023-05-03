@@ -305,7 +305,8 @@ int main(int argc, char* argv[]) {
 
             // release all allocated storage
             for(auto fib : fileInfoBlocks) {
-                delete fib;
+                 delete fib;
             }
             fileInfoBlocks.clear();
 }
+
