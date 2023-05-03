@@ -6,13 +6,10 @@
 #include <filesystem>
 #include <algorithm>
 #include <fstream>
+#include <memory>
 
 namespace fs = std::filesystem;
 using namespace std;
-
-// create a master list of fileInfoBlocks that hold the word stats for each file
-list<fileInfoBlock*> fileInfoBlocks;
-bool ignoreCase = true;
 
 // The comparison function for sorting the set by increasing order of its pair's
 // second value. If the second value is equal, order by the pair's first value
@@ -27,6 +24,114 @@ struct comp
  
         return l.first < r.first;
     }
+};
+
+// the stream base class with derived classes for string, keyboard, zip and file streams
+// each derived class must give an implementation for the fillStream() and getStream() functions
+class baseStream {
+    public:
+        virtual void fillStream() = 0;
+        virtual string getStream() = 0;
+};
+
+class stringStream : public baseStream {
+    private:
+        string str = "";
+
+    public:
+        stringStream(string strParam) {
+            str = strParam;
+        }
+
+        void fillStream() {
+            // do nothing
+        }
+
+        string getStream() {
+            return str;
+        }
+};
+
+class keyboardStream : public baseStream {
+    private:
+        string str = "";
+
+    public:
+        void fillStream() {
+            cout << "Enter text to process: ";
+            getline(cin, str);
+        }
+
+        string getStream() {
+            return str;
+        }
+};
+
+class zipStream : public baseStream {
+    private:
+        string zipFileName = "";
+        string zipFileBuffer = "";
+
+    public:
+        zipStream(string zipFileNameParam) {
+            zipFileName = zipFileNameParam;
+        }
+
+        ~zipStream() {
+            zipFileBuffer.clear();
+        }
+
+        void fillStream() {
+            // Open the stream to 'lock' the file.
+            ifstream fs(zipFileName, ios::in | ios::binary);
+
+            // Obtain the size of the file.
+            const auto sz = fs::file_size(zipFileName);
+
+            // Create a buffer.
+            zipFileBuffer.resize(sz);
+
+            // Read the whole file into the buffer.
+            fs.read(zipFileBuffer.data(), sz);
+        }
+
+        string getStream() {
+            return zipFileBuffer;
+        }
+};
+
+class fileStream : public baseStream {
+    private:
+        string fileName = "";
+        ifstream fs;
+        string fileBuffer = "";
+
+    public:
+        fileStream(string fileNameParam) {
+            fileName = fileNameParam;
+        }
+
+        ~fileStream() {
+            fs.close();
+        }
+
+        void fillStream() {
+            // Open the stream to 'lock' the file.
+            fs.open(fileName, ios::in | ios::binary);
+
+            // Obtain the size of the file.
+            const auto sz = fs::file_size(fileName);
+
+            // Create a buffer.
+            fileBuffer.resize(sz);
+
+            // Read the whole file into the buffer.
+            fs.read(fileBuffer.data(), sz);
+        }
+
+        string getStream() {
+            return fileBuffer;
+        }
 };
 
 class fileInfoBlock {
@@ -118,6 +223,10 @@ int main(int argc, char* argv[]) {
             // set default values
             bool recursiveDirectorySearch = false;
 
+            // create a master list of fileInfoBlocks that hold the word stats for each file
+            list<fileInfoBlock*> fileInfoBlocks;
+            bool ignoreCase = true;
+
             // process the command line arguments
             int validCmdLineArgs = 2; // assuming the first argument the program name and the second argument is the directory name
             
@@ -149,11 +258,37 @@ int main(int argc, char* argv[]) {
             // get all the files in the current directory(s) and process
             if (recursiveDirectorySearch) {
                 for (const auto & file : fs::directory_iterator(argv[1])) {
-                    fileInfoBlocks.push_front(processFile(file.path().string()));
+
+                    string filename = file.path().string();
+
+                    unique_ptr<baseStream> s(new fileStream(filename));
+                    s->fillStream();
+
+                    fileInfoBlock* fib = new fileInfoBlock(filename,ignoreCase);
+
+                    // split the stream contents into words
+                    stringstream ss(s->getStream());  
+                    string word;
+                    while (ss >> word) {fib->addWord(word);}
+
+                    fileInfoBlocks.push_front(fib);
                 }
             } else {
                 for (const auto & file : fs::recursive_directory_iterator(argv[1])) {
-                    fileInfoBlocks.push_front(processFile(file.path().string()));
+
+                    string filename = file.path().string();
+
+                    unique_ptr<baseStream> s(new fileStream(filename));
+                    s->fillStream();
+
+                    fileInfoBlock* fib = new fileInfoBlock(filename,ignoreCase);
+
+                    // split the stream contents into words
+                    stringstream ss(s->getStream());  
+                    string word;
+                    while (ss >> word) {fib->addWord(word);}
+
+                    fileInfoBlocks.push_front(fib);
                 }
             }
 
@@ -169,34 +304,8 @@ int main(int argc, char* argv[]) {
             cout << "Total words in all files is " << totalWordCountInAllFiles << " words." << endl;
 
             // release all allocated storage
-            fileInfoBlocks.clear();
-        }
-
-        fileInfoBlock* processFile(string fileName) {
-            // create a fileinfoBlock to contain the word stats for file
-            fileInfoBlock* fib = new fileInfoBlock(fileName,ignoreCase);
-
-            // Open the stream to 'lock' the file.
-            ifstream f(fileName, ios::in | ios::binary);
-
-            // Obtain the size of the file.
-            const auto sz = fs::file_size(fileName);
-
-            // Create a buffer.
-            std::string result(sz, '\0');
-
-            // Read the whole file into the buffer.
-            f.read(result.data(), sz);
-
-            // Close the file
-            f.close();
-
-            // split the file contents into words
-            stringstream ss(result);  
-            string word;
-            while (ss >> word) { // Extract word from the stream.
-                fib->addWord(word);
+            for(auto fib : fileInfoBlocks) {
+                delete fib;
             }
-
-            return fib; 
-        }
+            fileInfoBlocks.clear();
+}
