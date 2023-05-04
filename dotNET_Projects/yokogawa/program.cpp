@@ -229,41 +229,28 @@ int main(int argc, char* argv[]) {
             cout << "Processing files in " << argv[1] << endl;
 
             // get all the files in the current directory(s) and process
+            list<string> filesToProcess;
             if (recursiveDirectorySearch) {
-                for (const auto & file : fs::directory_iterator(argv[1])) {
-
-                    string filename = file.path().string();
-
-                    // use a smart pointer, memory will automatically be freed when the fileInfoBlock is removed from the list
-                    unique_ptr<baseStream> s(new fileStream(filename));
-                    s->fillStream();
-
-                    fileInfoBlock* fib = new fileInfoBlock(filename,ignoreCase);
-
-                    // split the stream contents into words
-                    stringstream ss(s->getStream());  
-                    while (ss >> word) {fib->addWord(word);}
-
-                    fileInfoBlocks.push_front(fib);
-                }
+                for (const auto & file : fs::directory_iterator(argv[1])) {filesToProcess.push_back(file.path().string());}
             } else {
-                for (const auto & file : fs::recursive_directory_iterator(argv[1])) {
-
-                    string filename = file.path().string();
-
-                    // use a smart pointer, memory will automatically be freed when the fileInfoBlock is removed from the list
-                    unique_ptr<baseStream> s(new fileStream(filename));
-                    s->fillStream();
-
-                    fileInfoBlock* fib = new fileInfoBlock(filename,ignoreCase);
-
-                    // split the stream contents into words
-                    stringstream ss(s->getStream());  
-                    while (ss >> word) {fib->addWord(word);}
-
-                    fileInfoBlocks.push_front(fib);
-                }
+                for (const auto & file : fs::recursive_directory_iterator(argv[1])) {filesToProcess.push_back(file.path().string());}
             }
+
+            // process each file
+            for(auto filename : filesToProcess) {
+                // use a smart pointer, memory will automatically be freed when the fileInfoBlock is removed from the list
+                unique_ptr<baseStream> s(new fileStream(filename));
+                s->fillStream();
+
+                fileInfoBlock* fib = new fileInfoBlock(filename,ignoreCase);
+
+                // split the stream contents into words
+                stringstream ss(s->getStream());  
+                while (ss >> word) {fib->addWord(word);}
+
+                fileInfoBlocks.push_front(fib);
+            }
+            filesToProcess.clear();
 
             // count of words across all files
             int totalWordCountInAllFiles = 0;
