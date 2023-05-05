@@ -238,6 +238,9 @@ int main(int argc, char* argv[]) {
 
             // process each file
             for(auto filename : filesToProcess) {
+                // display processing status message
+                cout << "Processing file " << filename << " ";
+
                 // use a smart pointer, memory will automatically be freed when the fileInfoBlock is removed from the list
                 unique_ptr<baseStream> s(new fileStream(filename));
                 s->fillStream();
@@ -246,9 +249,15 @@ int main(int argc, char* argv[]) {
 
                 // split the stream contents into words
                 stringstream ss(s->getStream());  
-                while (ss >> word) {fib->addWord(word);}
+                while (ss >> word) {
+                    fib->addWord(word);
+                    cout << "."; // output a . for each word processed
+                }
 
                 fileInfoBlocks.push_front(fib);
+
+                // output the next file's status on a new line
+                cout << endl;
             }
             filesToProcess.clear();
 
