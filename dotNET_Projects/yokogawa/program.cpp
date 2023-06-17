@@ -196,21 +196,29 @@ int main(int argc, char* argv[]) {
             bool recursiveDirectorySearch = false;
             bool ignoreCase = true;
             string word = "";
+            string startDirectory = "";
 
             // create a master list of fileInfoBlocks that hold the word stats for each file
             list<fileInfoBlock*> fileInfoBlocks;
 
             // process the command line arguments
-            int validCmdLineArgs = 2; // assuming the first argument the program name and the second argument is the directory name
+            int validCmdLineArgs = 1; // assuming the first argument the program name
             
-            for (int i=0; i < argc; i++) {
+            for (int i = 1; i < argc; i++) {
                 if (argv[1] == "-r") {
                     recursiveDirectorySearch = true;
                     validCmdLineArgs++;
+                    continue;
                 }
                 if (argv[i] == "-c") {
                     ignoreCase = false;
                     validCmdLineArgs++;
+                    continue;
+                }
+                if (fs::is_directory(argv[i])) {
+                    startDirectory = argv[i];
+                    validCmdLineArgs++;
+                    continue;
                 }
             }
 
@@ -219,21 +227,15 @@ int main(int argc, char* argv[]) {
                 return 0;
             }
         
-            // check specified directory exists
-            if (!fs::is_directory(argv[1])) {
-                cout << "Directory does not exist" << endl;
-                return 0;
-            }
-
             // display processing status message
-            cout << "Processing files in " << argv[1] << endl;
+            cout << "Processing files in " << startDirectory << endl;
 
             // get all the files in the current directory(s) and process
             list<string> filesToProcess;
             if (recursiveDirectorySearch) {
-                for (const auto & file : fs::directory_iterator(argv[1])) {filesToProcess.push_back(file.path().string());}
+                for (const auto & file : fs::directory_iterator(startDirectory)) {filesToProcess.push_back(file.path().string());}
             } else {
-                for (const auto & file : fs::recursive_directory_iterator(argv[1])) {filesToProcess.push_back(file.path().string());}
+                for (const auto & file : fs::recursive_directory_iterator(startDirectory)) {filesToProcess.push_back(file.path().string());}
             }
 
             // process each file
