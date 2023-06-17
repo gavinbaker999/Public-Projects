@@ -7,6 +7,7 @@ namespace FileWordCount {
         // create a master list of fileInfoBlocks that hold the word stats for each file
         static List<fileInfoBlock> fileInfoBlocks = new List<fileInfoBlock>();
         static bool ignoreCase = true;
+        static string startDirectory = "";
 
         static void Main(string[] args) {
             // set default values
@@ -18,10 +19,17 @@ namespace FileWordCount {
                 if (arg == "-r") {
                     directorySearchOption = SearchOption.AllDirectories;
                     validCmdLineArgs++;
+                    continue;
                 }
                 if (arg == "-c") {
                     ignoreCase = false;
                     validCmdLineArgs++;
+                    continue;
+                }
+                if (Directory.Exists(arg)) {
+                    startDirectory = arg;
+                    validCmdLineArgs++;
+                    continue;
                 }
             }
 
@@ -30,17 +38,11 @@ namespace FileWordCount {
                 return;
             }
         
-            // check specified directory exists
-            if (!Directory.Exists(args[0])) {
-                Console.WriteLine("Directory does not exist");
-                return;
-            }
-
             // display processing status message
-            Console.WriteLine("Processing files in {0}", args[0]);
+            Console.WriteLine("Processing files in {0}", startDirectory);
 
             // get all the files in the current directory
-            string[] files = Directory.GetFiles(args[0],"*.txt",directorySearchOption);
+            string[] files = Directory.GetFiles(startDirectory,"*.txt",directorySearchOption);
 
             foreach (string file in files) {
 
